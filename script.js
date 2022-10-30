@@ -5,19 +5,38 @@ for (i = 1; i <= 36; i++) {
 const gainNodes = [];
 const freqs = [];
 
+function generatePythFreqs(fundamental) {
+    freqs[0] = fundamental;
+    freqs[1] = 256/243 * fundamental;
+    freqs[2] = 9/8 * fundamental;
+    freqs[3] = 32/27 * fundamental;
+    freqs[4] = 81/64 * fundamental;
+    freqs[5] = 4/3 * fundamental;
+    freqs[6] = 729/512 * fundamental;
+    freqs[7] = 3/2 * fundamental;
+    freqs[8] = 128/81 * fundamental;
+    freqs[9] = 27/16 * fundamental;
+    freqs[10] = 16/9 * fundamental;
+    freqs[11] = 243/128 * fundamental;
+    freqs[12] = 2 * fundamental;
+    for (i = 13; i < 36; i++) {
+        freqs[i] = 2 * freqs[i - 12];
+    }
+}
+
 function generateJustFreqs(fundamental) {
     freqs[0] = fundamental;
-    freqs[1] = fundamental * 16 / 15;
-    freqs[2] = fundamental * 9 / 8;
-    freqs[3] = fundamental * 6 / 5;
-    freqs[4] = fundamental * 5 / 4;
-    freqs[5] = fundamental * 4 / 3;
-    freqs[6] = fundamental * 7 / 5;
-    freqs[7] = fundamental * 3 / 2;
-    freqs[8] = fundamental * 8 / 5;
-    freqs[9] = fundamental * 5 / 3;
-    freqs[10] = fundamental * 16 / 9;
-    freqs[11] = fundamental * 15 / 8;
+    freqs[1] = 16/15 * fundamental;
+    freqs[2] = 9/8 * fundamental;
+    freqs[3] = 6/5 * fundamental;
+    freqs[4] = 5/4 * fundamental;
+    freqs[5] = 4/3 * fundamental;
+    freqs[6] = 7/5 * fundamental;
+    freqs[7] = 3/2 * fundamental;
+    freqs[8] = 8/5 * fundamental;
+    freqs[9] = 5/3 * fundamental;
+    freqs[10] = 16/9 * fundamental;
+    freqs[11] = 15/8 * fundamental;
     freqs[12] = 2 * fundamental;
     for (i = 13; i < 36; i++) {
         freqs[i] = 2 * freqs[i - 12];
@@ -36,14 +55,16 @@ function generateEqualFreqs(fundamental) {
 }
 
 document.getElementById("temperaments").addEventListener("change", e => {
-    if (e.target.value === "just") {
+    if (e.target.value === "pythagorean")  {
+        generatePythFreqs(130.81);
+    } else if (e.target.value === "just") {
         generateJustFreqs(130.81);
     } else if (e.target.value === "equal") {
         generateEqualFreqs(130.81);
     }
 });
 
-generateJustFreqs(130.81);
+generatePythFreqs(130.81);
 
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
