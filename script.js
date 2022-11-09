@@ -24,14 +24,14 @@ function generatePythFreqs(fundamental) {
     }
 }
 
-function generateJustFreqs(fundamental) {
+function generateFiveFreqs(fundamental) {
     freqs[0] = fundamental;
     freqs[1] = 16/15 * fundamental;
     freqs[2] = 9/8 * fundamental;
     freqs[3] = 6/5 * fundamental;
     freqs[4] = 5/4 * fundamental;
     freqs[5] = 4/3 * fundamental;
-    freqs[6] = 7/5 * fundamental;
+    freqs[6] = 45/32 * fundamental;
     freqs[7] = 3/2 * fundamental;
     freqs[8] = 8/5 * fundamental;
     freqs[9] = 5/3 * fundamental;
@@ -57,8 +57,8 @@ function generateEqualFreqs(fundamental) {
 document.getElementById("temperaments").addEventListener("change", e => {
     if (e.target.value === "pythagorean")  {
         generatePythFreqs(130.81);
-    } else if (e.target.value === "just") {
-        generateJustFreqs(130.81);
+    } else if (e.target.value === "five") {
+        generateFiveFreqs(130.81);
     } else if (e.target.value === "equal") {
         generateEqualFreqs(130.81);
     }
