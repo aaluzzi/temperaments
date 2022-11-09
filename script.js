@@ -62,7 +62,34 @@ document.getElementById("temperaments").addEventListener("change", e => {
     } else if (e.target.value === "equal") {
         generateEqualFreqs(130.81);
     }
+    if (document.getElementById("checkFreqs").checked) {
+        displayFreqs();
+    }
 });
+
+document.getElementById("checkFreqs").addEventListener("change", e => {
+    if (e.target.checked) {
+        displayFreqs();
+    } else {
+        removeFreqs();
+    }
+});
+
+function displayFreqs() {
+    const keys = document.getElementById("keyboard").children;
+    for (i = 0; i < keys.length; i++) {
+        console.log(keys[i]);
+        keys[i].textContent = freqs[i].toFixed(1);
+    }
+}
+
+function removeFreqs() {
+    const keys = document.getElementById("keyboard").children;
+    for (i = 0; i < keys.length; i++) {
+        console.log(keys[i]);
+        keys[i].textContent = "";
+    }
+}
 
 generatePythFreqs(130.81);
 
@@ -75,7 +102,6 @@ function playNote(number) {
     gainNode.gain.value = 0.1;
     gainNodes[number] = gainNode;
 
-    console.log(freqs[number - 1])
     const oscillator = audioCtx.createOscillator();
     oscillator.type = "triangle";
     oscillator.frequency.value = freqs[number - 1];

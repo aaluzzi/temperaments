@@ -8,13 +8,18 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <select id="temperaments">
-        <option value="pythagorean">Pythagorean</option>
-        <option value="just">Just Intonation</option>
-        <option value="equal">Equal Temperament</option>
-    </select>
-
-    <ul class="keyboard">
+    <div>
+        <select id="temperaments">
+            <option value="pythagorean">Pythagorean</option>
+            <option value="just">Just Intonation</option>
+            <option value="equal">Equal Temperament</option>
+        </select>
+        <div>
+            <input type="checkbox" id="checkFreqs">
+            <label for="checkFreqs">Show Frequencies</label>
+        </div>
+    </div>
+    <ul id="keyboard">
         <li id="1" data-key="q" class="white"></li>
         <li id="2" data-key="2" class="black"></li>
         <li id="3" data-key="w" class="white"></li>
@@ -32,8 +37,8 @@
         <li id="13" data-key="i" class="white"></li>
         <li id="14" data-key="9" class="black"></li>
         <li id="15" data-key="o" class="white"></li>
-        <li id="16" data-key="p" class="black"></li>
-        <li id="17" data-key="-" class="white"></li>
+        <li id="16" data-key="0" class="black"></li>
+        <li id="17" data-key="p" class="white"></li>
 
         <li id="18" data-key="[" class="white"></li>
         <li id="19" data-key="=" class="black"></li>

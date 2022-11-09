@@ -9,7 +9,7 @@ html, body {
     gap: 5%;
 }
 
-.keyboard {
+#keyboard {
     padding: 0;
     margin: 0;
     display: flex;
@@ -18,22 +18,31 @@ html, body {
 }
 
 li {
+    width: 0;
     border: 1px solid black;
     list-style: none;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    font-family: sans-serif;
+    user-select: none;
 }
- 
+
 .black {
     flex: 1 1 auto;
     z-index: 1;
     margin: 0 -1.4% 0 -1.4%;
     height: 50%;
     background-color: rgb(65, 65, 65);
+    color: white;
+    font-size: 0.8vw;
 }
 
 .white {
     flex: 2 1 auto;
     height: 100%;
     background-color: white;
+    font-size: 1.2vw;
 }
 
 .active {
