@@ -5,40 +5,14 @@ for (i = 1; i <= 36; i++) {
 const gainNodes = [];
 const freqs = [];
 
-function generatePythFreqs(fundamental) {
-    freqs[0] = fundamental;
-    freqs[1] = 256/243 * fundamental;
-    freqs[2] = 9/8 * fundamental;
-    freqs[3] = 32/27 * fundamental;
-    freqs[4] = 81/64 * fundamental;
-    freqs[5] = 4/3 * fundamental;
-    freqs[6] = 729/512 * fundamental;
-    freqs[7] = 3/2 * fundamental;
-    freqs[8] = 128/81 * fundamental;
-    freqs[9] = 27/16 * fundamental;
-    freqs[10] = 16/9 * fundamental;
-    freqs[11] = 243/128 * fundamental;
-    freqs[12] = 2 * fundamental;
-    for (i = 13; i < 36; i++) {
-        freqs[i] = 2 * freqs[i - 12];
-    }
-}
+const pythRatios = [1, 256/243, 9/8, 32/27, 81/64, 4/3, 729/512, 3/2, 128/81, 27/16, 16/9, 243/128, 2];
+const fiveLimitRatios = [1, 16/15, 9/8, 6/5, 5/4, 4/3, 45/32, 3/2, 8/5, 5/3, 16/9, 15/8, 2]
 
-function generateFiveFreqs(fundamental) {
-    freqs[0] = fundamental;
-    freqs[1] = 16/15 * fundamental;
-    freqs[2] = 9/8 * fundamental;
-    freqs[3] = 6/5 * fundamental;
-    freqs[4] = 5/4 * fundamental;
-    freqs[5] = 4/3 * fundamental;
-    freqs[6] = 45/32 * fundamental;
-    freqs[7] = 3/2 * fundamental;
-    freqs[8] = 8/5 * fundamental;
-    freqs[9] = 5/3 * fundamental;
-    freqs[10] = 16/9 * fundamental;
-    freqs[11] = 15/8 * fundamental;
-    freqs[12] = 2 * fundamental;
-    for (i = 13; i < 36; i++) {
+function generateJustFreqs(fundamental, ratios) {
+    for (i = 0; i < ratios.length; i++) {
+        freqs[i] = fundamental * ratios[i];
+    }
+    for (i = ratios.length; i < 36; i++) {
         freqs[i] = 2 * freqs[i - 12];
     }
 }
@@ -56,9 +30,9 @@ function generateEqualFreqs(fundamental) {
 
 document.getElementById("temperaments").addEventListener("change", e => {
     if (e.target.value === "pythagorean")  {
-        generatePythFreqs(130.81);
+        generateJustFreqs(130.81, pythRatios);
     } else if (e.target.value === "five") {
-        generateFiveFreqs(130.81);
+        generateJustFreqs(130.81, fiveLimitRatios);
     } else if (e.target.value === "equal") {
         generateEqualFreqs(130.81);
     }
@@ -91,7 +65,7 @@ function removeFreqs() {
     }
 }
 
-generatePythFreqs(130.81);
+generateJustFreqs(130.81, pythRatios);
 
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
