@@ -8,12 +8,32 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div>
-        <select id="temperaments">
-            <option value="pythagorean">Pythagorean</option>
-            <option value="five">Five-limit</option>
-            <option value="equal">Equal Temperament</option>
-        </select>
+    <div id="settings">
+        <div>
+            <div>Temperament</div>
+            <select id="temperaments">
+                <option value="pythagorean">Pythagorean</option>
+                <option value="five">Five-limit</option>
+                <option value="equal">Equal Temperament</option>
+            </select>
+        </div>
+        <div>
+            <div>Key</div>
+            <select id="key">
+                <option value=0>C</option>
+                <option value=1>C#</option>
+                <option value=2>D</option>
+                <option value=3>D#</option>
+                <option value=4>E</option>
+                <option value=5>F</option>
+                <option value=6>F#</option>
+                <option value=7>G</option>
+                <option value=8>G#</option>
+                <option value=9>A</option>
+                <option value=10>A#</option>
+                <option value=11>B</option>
+            </select>
+        </div>
         <div>
             <input type="checkbox" id="checkFreqs">
             <label for="checkFreqs">Show Frequencies</label>

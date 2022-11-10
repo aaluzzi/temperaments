@@ -3,43 +3,62 @@ for (i = 1; i <= 36; i++) {
     oscillators[i] = null;
 }
 const gainNodes = [];
-const freqs = [];
+const currFreqs = [];
+
+const baseFreqs = [130.81, 138.59, 146.83, 155.56, 164.81, 174.61, 185.00, 196.00, 207.65, 220.00, 233.08, 246.94];
 
 const pythRatios = [1, 256/243, 9/8, 32/27, 81/64, 4/3, 729/512, 3/2, 128/81, 27/16, 16/9, 243/128, 2];
 const fiveLimitRatios = [1, 16/15, 9/8, 6/5, 5/4, 4/3, 45/32, 3/2, 8/5, 5/3, 16/9, 15/8, 2]
 
-function generateJustFreqs(fundamental, ratios) {
+function generateJustFreqs(ratios) {
+    const key = Number(document.getElementById("key").value);
     for (i = 0; i < ratios.length; i++) {
-        freqs[i] = fundamental * ratios[i];
+        currFreqs[key + i] = baseFreqs[key] * ratios[i];
     }
-    for (i = ratios.length; i < 36; i++) {
-        freqs[i] = 2 * freqs[i - 12];
+
+    //calculate lower
+    for (i = 0; i < key; i++) {
+        currFreqs[i] = currFreqs[i + 12] / 2;
+    }
+    //calculate higher
+    for (i = ratios.length + key; i < 36; i++) {
+        currFreqs[i] = 2 * currFreqs[i - 12];
     }
 }
 
-function generateEqualFreqs(fundamental) {
-    freqs[0] = fundamental;
-    for (i = 1; i <= 12; i++) {
-        freqs[i] = fundamental * (Math.pow(2, i / 12));
+function generateEqualFreqs() {
+    const key = Number(document.getElementById("key").value);
+    for (i = 0; i <= 12; i++) {
+        currFreqs[i + key] = baseFreqs[key] * (Math.pow(2, i / 12));
     }
 
-    for (i = 13; i < 36; i++) {
-        freqs[i] = 2 * freqs[i - 12];
+     //calculate lower
+     for (i = 0; i < key; i++) {
+        currFreqs[i] = currFreqs[i + 12] / 2;
+    }
+
+    //calculate higher
+    for (i = 13 + key; i < 36; i++) {
+        currFreqs[i] = 2 * currFreqs[i - 12];
     }
 }
 
-document.getElementById("temperaments").addEventListener("change", e => {
-    if (e.target.value === "pythagorean")  {
-        generateJustFreqs(130.81, pythRatios);
-    } else if (e.target.value === "five") {
-        generateJustFreqs(130.81, fiveLimitRatios);
-    } else if (e.target.value === "equal") {
-        generateEqualFreqs(130.81);
+function generateFreqs() {
+    const type = document.getElementById("temperaments").value;
+    if (type === "pythagorean") {
+        generateJustFreqs(pythRatios);
+    } else if (type === "five") {
+        generateJustFreqs(fiveLimitRatios);
+    } else if (type === "equal") {
+        generateEqualFreqs();
     }
     if (document.getElementById("checkFreqs").checked) {
         displayFreqs();
     }
-});
+}
+
+document.getElementById("temperaments").addEventListener("change", generateFreqs);
+document.getElementById("key").addEventListener("change", generateFreqs);
 
 document.getElementById("checkFreqs").addEventListener("change", e => {
     if (e.target.checked) {
@@ -52,20 +71,18 @@ document.getElementById("checkFreqs").addEventListener("change", e => {
 function displayFreqs() {
     const keys = document.getElementById("keyboard").children;
     for (i = 0; i < keys.length; i++) {
-        console.log(keys[i]);
-        keys[i].textContent = freqs[i].toFixed(1);
+        keys[i].textContent = currFreqs[i].toFixed(1);
     }
 }
 
 function removeFreqs() {
     const keys = document.getElementById("keyboard").children;
     for (i = 0; i < keys.length; i++) {
-        console.log(keys[i]);
         keys[i].textContent = "";
     }
 }
 
-generateJustFreqs(130.81, pythRatios);
+generateJustFreqs(pythRatios);
 
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
@@ -78,7 +95,7 @@ function playNote(number) {
 
     const oscillator = audioCtx.createOscillator();
     oscillator.type = "triangle";
-    oscillator.frequency.value = freqs[number - 1];
+    oscillator.frequency.value = currFreqs[number - 1];
     oscillator.connect(gainNode).connect(audioCtx.destination);
     oscillator.start();
     oscillators[number] = oscillator;

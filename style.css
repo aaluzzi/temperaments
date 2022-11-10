@@ -9,6 +9,12 @@ html, body {
     gap: 5%;
 }
 
+#settings {
+    display: flex;
+    gap: 1vw;
+    align-items: center;
+}
+
 #keyboard {
     padding: 0;
     margin: 0;
