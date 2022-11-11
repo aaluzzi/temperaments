@@ -10,6 +10,20 @@ const baseFreqs = [130.81, 138.59, 146.83, 155.56, 164.81, 174.61, 185.00, 196.0
 const pythRatios = [1, 256/243, 9/8, 32/27, 81/64, 4/3, 729/512, 3/2, 128/81, 27/16, 16/9, 243/128, 2];
 const fiveLimitRatios = [1, 16/15, 9/8, 6/5, 5/4, 4/3, 45/32, 3/2, 8/5, 5/3, 16/9, 15/8, 2]
 
+const cents = [];
+
+function generateCents(ratios) {
+    if (ratios == null) {
+        for (i = 0; i < 12; i++) {
+            cents[i] = 0.0;
+        }
+    } else {
+        for (i = 0; i < 12; i++) {
+            cents[i] = 1200 * Math.log2(ratios[i]) - (i * 100);
+        }
+    }
+}
+
 function generateJustFreqs(ratios) {
     const key = Number(document.getElementById("key").value);
     for (i = 0; i < ratios.length; i++) {
@@ -47,42 +61,70 @@ function generateFreqs() {
     const type = document.getElementById("temperaments").value;
     if (type === "pythagorean") {
         generateJustFreqs(pythRatios);
+        generateCents(pythRatios);
     } else if (type === "five") {
         generateJustFreqs(fiveLimitRatios);
+        generateCents(fiveLimitRatios);
     } else if (type === "equal") {
         generateEqualFreqs();
+        generateCents(null);
     }
     if (document.getElementById("checkFreqs").checked) {
         displayFreqs();
+    }
+    if (document.getElementById("checkCents").checked) {
+        displayCents();
     }
 }
 
 document.getElementById("temperaments").addEventListener("change", generateFreqs);
 document.getElementById("key").addEventListener("change", generateFreqs);
 
-document.getElementById("checkFreqs").addEventListener("change", e => {
-    if (e.target.checked) {
-        displayFreqs();
-    } else {
-        removeFreqs();
+document.getElementById("checkCents").addEventListener("change", e => e.target.checked ? displayCents() : removeCents());
+
+function displayCents() {
+    const keys = document.getElementById("keyboard").children;
+    const key = Number(document.getElementById("key").value);
+    let centIndex = key == 0 ? 0 : cents.length - key;
+    for (i = 0; i < keys.length; i++) {
+        keys[i].children[0].textContent = cents[centIndex].toFixed(2);
+        if (cents[centIndex] > 0) {
+            keys[i].children[0].style.color = "#03bafc";
+        } else if (cents[centIndex] < 0) {
+            keys[i].children[0].style.color = "#ff5454";
+        } else {
+            keys[i].children[0].style.color = "black";
+        }
+        keys[i].children[0].style.fontWeight = "bold";
+        centIndex = (centIndex + 1) % cents.length;
     }
-});
+}
+
+function removeCents() {
+    const keys = document.getElementById("keyboard").children;
+    for (i = 0; i < keys.length; i++) {
+        keys[i].children[0].textContent = "";
+    }
+}
+
+document.getElementById("checkFreqs").addEventListener("change", e => e.target.checked ? displayFreqs() : removeFreqs());
 
 function displayFreqs() {
     const keys = document.getElementById("keyboard").children;
     for (i = 0; i < keys.length; i++) {
-        keys[i].textContent = currFreqs[i].toFixed(1);
+        keys[i].children[1].textContent = currFreqs[i].toFixed(1);
     }
 }
 
 function removeFreqs() {
     const keys = document.getElementById("keyboard").children;
     for (i = 0; i < keys.length; i++) {
-        keys[i].textContent = "";
+        keys[i].children[1].textContent = "";
     }
 }
 
 generateJustFreqs(pythRatios);
+generateCents(pythRatios);
 
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
@@ -103,8 +145,8 @@ function playNote(number) {
 
 function stopNote(number) {
     gainNodes[number].gain.setValueAtTime(0.1, audioCtx.currentTime);
-    gainNodes[number].gain.exponentialRampToValueAtTime(0.000001, audioCtx.currentTime + 2);
-    oscillators[number].stop(audioCtx.currentTime + 2);
+    gainNodes[number].gain.exponentialRampToValueAtTime(0.000001, audioCtx.currentTime + 4);
+    oscillators[number].stop(audioCtx.currentTime + 4);
     oscillators[number] = null;
 }
 

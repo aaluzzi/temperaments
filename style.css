@@ -11,8 +11,13 @@ html, body {
 
 #settings {
     display: flex;
-    gap: 1vw;
+    gap: 2vw;
     align-items: center;
+}
+
+#checkboxes {
+    display: flex;
+    flex-direction: column;
 }
 
 #keyboard {
@@ -28,9 +33,15 @@ li {
     border: 1px solid black;
     list-style: none;
     display: flex;
-    align-items: flex-end;
-    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
     font-family: sans-serif;
+}
+
+li > div {
+    margin-bottom: 5%;
+    pointer-events: none;
     user-select: none;
 }
 
@@ -39,7 +50,7 @@ li {
     z-index: 1;
     margin: 0 -1.4% 0 -1.4%;
     height: 55%;
-    background-color: rgb(65, 65, 65);
+    background-color: rgb(75, 75, 75);
     color: white;
     font-size: 0.8vw;
 }
@@ -51,7 +62,14 @@ li {
     font-size: 1.2vw;
 }
 
+.active.white {
+    height: 98%;
+}
+
+.active.black {
+    height: 53%;
+}
+
 .active {
-    margin-top: 0.15%;
     filter: brightness(0.9);
 }
