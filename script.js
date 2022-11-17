@@ -12,15 +12,39 @@ const fiveLimitRatios = [1, 16/15, 9/8, 6/5, 5/4, 4/3, 45/32, 3/2, 8/5, 5/3, 16/
 
 const cents = [];
 
-function generateCents(ratios) {
-    if (ratios == null) {
-        for (i = 0; i < 12; i++) {
-            cents[i] = 0.0;
-        }
-    } else {
-        for (i = 0; i < 12; i++) {
-            cents[i] = 1200 * Math.log2(ratios[i]) - (i * 100);
-        }
+function generateCentDifference() {
+    const key = Number(document.getElementById("key").value);
+    for (i = 0; i < 12; i++) {
+        cents[i] = (1200 * Math.log2(currFreqs[i + key] / currFreqs[key]) - (i * 100)).toFixed(2);
+        if (cents[i] == -0.00) cents[i] = (0).toFixed(2); //hack to get around -0;
+    }
+}
+
+function generateMeanFreqs(comma) {
+    const fifth = 3/2 * (80/81)**comma;
+    const key = Number(document.getElementById("key").value);
+    for (i = 0; i < 12; i++) {
+        currFreqs[key + i] = baseFreqs[key];
+    }
+    currFreqs[key + 1] *= fifth**-5 * 2**3;
+    currFreqs[key + 2] *= fifth**2 * 2**-1;
+    currFreqs[key + 3] *= fifth**-3 * 2**2;
+    currFreqs[key + 4] *= fifth**4 * 2**-2;
+    currFreqs[key + 5] *= fifth**-1 * 2;
+    currFreqs[key + 6] *= fifth**6 * 2**-3;
+    currFreqs[key + 7] *= fifth;
+    currFreqs[key + 8] *= fifth**-4 * 2**3;
+    currFreqs[key + 9] *= fifth**3 * 2**-1;
+    currFreqs[key + 10] *= fifth**-2 * 2**2;
+    currFreqs[key + 11] *= fifth**5 * 2**-2;
+
+    //calculate lower
+    for (i = 0; i < key; i++) {
+        currFreqs[i] = currFreqs[i + 12] / 2;
+    }
+    //calculate higher
+    for (i = 12 + key; i < 36; i++) {
+        currFreqs[i] = 2 * currFreqs[i - 12];
     }
 }
 
@@ -61,39 +85,47 @@ function generateFreqs() {
     const type = document.getElementById("temperaments").value;
     if (type === "pythagorean") {
         generateJustFreqs(pythRatios);
-        generateCents(pythRatios);
     } else if (type === "five") {
         generateJustFreqs(fiveLimitRatios);
-        generateCents(fiveLimitRatios);
+    } else if (type === "1/4") {
+        generateMeanFreqs(1/4);
+    } else if (type === "1/3") {
+        generateMeanFreqs(1/3);
+    } else if (type === "1/2") {
+        generateMeanFreqs(1/2);
     } else if (type === "equal") {
         generateEqualFreqs();
-        generateCents(null);
     }
+    generateCentDifference();
     if (document.getElementById("checkFreqs").checked) {
         displayFreqs();
     }
     if (document.getElementById("checkCents").checked) {
-        displayCents();
+        displayCentDifference();
     }
 }
 
 document.getElementById("temperaments").addEventListener("change", generateFreqs);
 document.getElementById("key").addEventListener("change", generateFreqs);
 
-document.getElementById("checkCents").addEventListener("change", e => e.target.checked ? displayCents() : removeCents());
+document.getElementById("checkCents").addEventListener("change", e => e.target.checked ? displayCentDifference() : removeCentDifference());
 
-function displayCents() {
+function displayCentDifference() {
     const keys = document.getElementById("keyboard").children;
     const key = Number(document.getElementById("key").value);
     let centIndex = key == 0 ? 0 : cents.length - key;
     for (i = 0; i < keys.length; i++) {
-        keys[i].children[0].textContent = cents[centIndex].toFixed(2);
+        keys[i].children[0].textContent = cents[centIndex];
         if (cents[centIndex] > 0) {
             keys[i].children[0].style.color = "#03bafc";
         } else if (cents[centIndex] < 0) {
             keys[i].children[0].style.color = "#ff5454";
         } else {
-            keys[i].children[0].style.color = "black";
+            if (keys[i].classList.contains("black")) {
+                keys[i].children[0].style.color = "white";
+            } else {
+                keys[i].children[0].style.color = "black";
+            }
         }
         keys[i].children[0].style.fontWeight = "bold";
         centIndex = (centIndex + 1) % cents.length;
@@ -124,7 +156,7 @@ function removeFreqs() {
 }
 
 generateJustFreqs(pythRatios);
-generateCents(pythRatios);
+generateCentDifference();
 
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
