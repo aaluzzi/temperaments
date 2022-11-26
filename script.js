@@ -7,7 +7,7 @@ const currFreqs = [];
 
 const baseFreqs = [130.81, 138.59, 146.83, 155.56, 164.81, 174.61, 185.00, 196.00, 207.65, 220.00, 233.08, 246.94];
 
-const pythRatios = [1, 256/243, 9/8, 32/27, 81/64, 4/3, 729/512, 3/2, 128/81, 27/16, 16/9, 243/128, 2];
+//const pythRatios = [1, 256/243, 9/8, 32/27, 81/64, 4/3, 729/512, 3/2, 128/81, 27/16, 16/9, 243/128, 2];
 const fiveLimitRatios = [1, 16/15, 9/8, 6/5, 5/4, 4/3, 45/32, 3/2, 8/5, 5/3, 16/9, 15/8, 2]
 
 const cents = [];
@@ -20,12 +20,32 @@ function generateCentDifference() {
     }
 }
 
-function generateMeanFreqs(comma) {
-    const fifth = 3/2 * (80/81)**comma;
+function generateJustFreqs(ratios) {
+    const key = Number(document.getElementById("key").value);
+    for (i = 0; i < ratios.length; i++) {
+        currFreqs[key + i] = baseFreqs[key] * ratios[i];
+    }
+
+    //calculate lower
+    for (i = 0; i < key; i++) {
+        currFreqs[i] = currFreqs[i + 12] / 2;
+    }
+    //calculate higher
+    for (i = ratios.length + key; i < 36; i++) {
+        currFreqs[i] = 2 * currFreqs[i - 12];
+    }
+}
+
+function generateMeantoneFreqs(fractionOfSyntonicComma) {
+    generateFreqsByStackingFifths(3/2 * (80/81)**fractionOfSyntonicComma);
+}
+
+function generateFreqsByStackingFifths(fifth) {
     const key = Number(document.getElementById("key").value);
     for (i = 0; i < 12; i++) {
         currFreqs[key + i] = baseFreqs[key];
     }
+    //This isn't simplified in order to understand the concept easier
     currFreqs[key + 1] *= fifth**-5 * 2**3;
     currFreqs[key + 2] *= fifth**2 * 2**-1;
     currFreqs[key + 3] *= fifth**-3 * 2**2;
@@ -48,53 +68,21 @@ function generateMeanFreqs(comma) {
     }
 }
 
-function generateJustFreqs(ratios) {
-    const key = Number(document.getElementById("key").value);
-    for (i = 0; i < ratios.length; i++) {
-        currFreqs[key + i] = baseFreqs[key] * ratios[i];
-    }
-
-    //calculate lower
-    for (i = 0; i < key; i++) {
-        currFreqs[i] = currFreqs[i + 12] / 2;
-    }
-    //calculate higher
-    for (i = ratios.length + key; i < 36; i++) {
-        currFreqs[i] = 2 * currFreqs[i - 12];
-    }
-}
-
-function generateEqualFreqs() {
-    const key = Number(document.getElementById("key").value);
-    for (i = 0; i <= 12; i++) {
-        currFreqs[i + key] = baseFreqs[key] * (Math.pow(2, i / 12));
-    }
-
-     //calculate lower
-     for (i = 0; i < key; i++) {
-        currFreqs[i] = currFreqs[i + 12] / 2;
-    }
-
-    //calculate higher
-    for (i = 13 + key; i < 36; i++) {
-        currFreqs[i] = 2 * currFreqs[i - 12];
-    }
-}
-
 function generateFreqs() {
     const type = document.getElementById("temperaments").value;
     if (type === "pythagorean") {
-        generateJustFreqs(pythRatios);
+        generateFreqsByStackingFifths(3/2);
     } else if (type === "five") {
         generateJustFreqs(fiveLimitRatios);
     } else if (type === "1/4") {
-        generateMeanFreqs(1/4);
+        generateMeantoneFreqs(1/4);
     } else if (type === "1/3") {
-        generateMeanFreqs(1/3);
+        generateMeantoneFreqs(1/3);
     } else if (type === "1/2") {
-        generateMeanFreqs(1/2);
+        generateMeantoneFreqs(1/2);
     } else if (type === "equal") {
-        generateEqualFreqs();
+        //1/11 of syntonic comma is very close to 1/12 of pythagorean comma
+        generateMeantoneFreqs(1/11); 
     }
     generateCentDifference();
     if (document.getElementById("checkFreqs").checked) {
@@ -132,7 +120,7 @@ function displayCentDifference() {
     }
 }
 
-function removeCents() {
+function removeCentDifference() {
     const keys = document.getElementById("keyboard").children;
     for (i = 0; i < keys.length; i++) {
         keys[i].children[0].textContent = "";
@@ -155,7 +143,7 @@ function removeFreqs() {
     }
 }
 
-generateJustFreqs(pythRatios);
+generateFreqsByStackingFifths(3/2);
 generateCentDifference();
 
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
