@@ -198,7 +198,7 @@ document.querySelectorAll("li").forEach(key => key.addEventListener("touchstart"
     e.preventDefault();
     onKeyPress(e.target)
 }));
-document.querySelectorAll("li").forEach(key => key.addEventListener("touchend", e => e.onKeyRelease(e.target)));
+document.querySelectorAll("li").forEach(key => key.addEventListener("touchend", e => onKeyRelease(e.target)));
 
 //Keyboard press listeners
 document.addEventListener("keydown", e => {
