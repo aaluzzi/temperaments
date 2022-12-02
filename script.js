@@ -69,7 +69,7 @@ function generateFreqsByStackingFifths(fifth) {
 }
 
 function generateFreqs() {
-    const type = document.getElementById("temperaments").value;
+    const type = document.getElementById("tuning").value;
     if (type === "pythagorean") {
         generateFreqsByStackingFifths(3/2);
     } else if (type === "five") {
@@ -93,7 +93,7 @@ function generateFreqs() {
     }
 }
 
-document.getElementById("temperaments").addEventListener("change", generateFreqs);
+document.getElementById("tuning").addEventListener("change", generateFreqs);
 document.getElementById("key").addEventListener("change", generateFreqs);
 
 document.getElementById("checkCents").addEventListener("change", e => e.target.checked ? displayCentDifference() : removeCentDifference());
@@ -143,7 +143,7 @@ function removeFreqs() {
     }
 }
 
-generateFreqsByStackingFifths(3/2);
+generateMeantoneFreqs(1/11);
 generateCentDifference();
 
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -172,20 +172,22 @@ function stopNote(number) {
 
 document.querySelectorAll("li").forEach(key => key.addEventListener("mousedown", e => {
     const key = e.target;
-    key.classList.add("active");
-    playNote(key.id);
+    if (!isPlaying(key.id)) {
+        key.classList.add("active");
+        playNote(key.id);
+    }
 }));
 
 document.querySelectorAll("li").forEach(key => key.addEventListener("mouseleave", e => {
     const key = e.target;
-    if (oscillators[key.id] !== null) {
+    if (isPlaying(key.id)) {
         key.classList.remove("active");
         stopNote(key.id);
     }
 }));
 
 document.querySelectorAll("li").forEach(key => key.addEventListener("mouseup", e => {
-    if (oscillators[key.id] !== null) {
+    if (isPlaying(key.id)) {
         key.classList.remove("active");
         stopNote(key.id);
     }
@@ -194,13 +196,15 @@ document.querySelectorAll("li").forEach(key => key.addEventListener("mouseup", e
 document.querySelectorAll("li").forEach(key => key.addEventListener("touchstart", e => {
     e.preventDefault();
     const key = e.target;
-    key.classList.add("active");
-    playNote(key.id);
+    if (!isPlaying(key.id)) {
+        key.classList.add("active");
+        playNote(key.id);
+    }
 }));
 
 document.querySelectorAll("li").forEach(key => key.addEventListener("touchend", e => {
     const key = e.target;
-    if (oscillators[key.id] !== null) {
+    if (isPlaying(key.id)) {
         key.classList.remove("active");
         stopNote(key.id);
     }
@@ -208,7 +212,7 @@ document.querySelectorAll("li").forEach(key => key.addEventListener("touchend", 
 
 document.addEventListener("keydown", e => {
     const key = document.querySelector(`li[data-key="${e.key}"]`);
-    if (key !== null && oscillators[key.id] === null) {
+    if (key !== null && !isPlaying(key.id)) {
         key.classList.add("active");
         playNote(key.id);
     }
@@ -216,8 +220,12 @@ document.addEventListener("keydown", e => {
 
 document.addEventListener("keyup", e => {
     const key = document.querySelector(`li[data-key="${e.key}"]`);
-    if (key !== null && oscillators[key.id] !== null) {
+    if (key !== null && isPlaying(key.id)) {
         key.classList.remove("active");
         stopNote(key.id);
     }
 });
+
+function isPlaying(note) {
+    return oscillators[note] !== null;
+}
