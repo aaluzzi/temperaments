@@ -156,7 +156,7 @@ function playNote(number) {
     gainNodes[number] = gainNode;
 
     const oscillator = audioCtx.createOscillator();
-    oscillator.type = "triangle";
+    oscillator.type = document.getElementById("oscillator").value;
     oscillator.frequency.value = currFreqs[number - 1];
     oscillator.connect(gainNode).connect(audioCtx.destination);
     oscillator.start();
