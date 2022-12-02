@@ -152,7 +152,7 @@ function playNote(number) {
     audioCtx.resume();
 
     const gainNode = audioCtx.createGain();
-    gainNode.gain.value = 0.1;
+    gainNode.gain.value = 0.15;
     gainNodes[number] = gainNode;
 
     const oscillator = audioCtx.createOscillator();
@@ -164,68 +164,52 @@ function playNote(number) {
 }
 
 function stopNote(number) {
-    gainNodes[number].gain.setValueAtTime(0.1, audioCtx.currentTime);
-    gainNodes[number].gain.exponentialRampToValueAtTime(0.000001, audioCtx.currentTime + 4);
-    oscillators[number].stop(audioCtx.currentTime + 4);
+    gainNodes[number].gain.setValueAtTime(0.15, audioCtx.currentTime);
+    gainNodes[number].gain.exponentialRampToValueAtTime(0.000001, audioCtx.currentTime + 3);
+    oscillators[number].stop(audioCtx.currentTime + 3);
     oscillators[number] = null;
 }
 
-document.querySelectorAll("li").forEach(key => key.addEventListener("mousedown", e => {
-    const key = e.target;
+function onKeyPress(key) {
     if (!isPlaying(key.id)) {
         key.classList.add("active");
         playNote(key.id);
     }
-}));
+}
 
-document.querySelectorAll("li").forEach(key => key.addEventListener("mouseleave", e => {
-    const key = e.target;
+function onKeyRelease(key) {
     if (isPlaying(key.id)) {
         key.classList.remove("active");
         stopNote(key.id);
     }
-}));
-
-document.querySelectorAll("li").forEach(key => key.addEventListener("mouseup", e => {
-    if (isPlaying(key.id)) {
-        key.classList.remove("active");
-        stopNote(key.id);
-    }
-}));
-
-document.querySelectorAll("li").forEach(key => key.addEventListener("touchstart", e => {
-    e.preventDefault();
-    const key = e.target;
-    if (!isPlaying(key.id)) {
-        key.classList.add("active");
-        playNote(key.id);
-    }
-}));
-
-document.querySelectorAll("li").forEach(key => key.addEventListener("touchend", e => {
-    const key = e.target;
-    if (isPlaying(key.id)) {
-        key.classList.remove("active");
-        stopNote(key.id);
-    }
-}));
-
-document.addEventListener("keydown", e => {
-    const key = document.querySelector(`li[data-key="${e.key}"]`);
-    if (key !== null && !isPlaying(key.id)) {
-        key.classList.add("active");
-        playNote(key.id);
-    }
-});
-
-document.addEventListener("keyup", e => {
-    const key = document.querySelector(`li[data-key="${e.key}"]`);
-    if (key !== null && isPlaying(key.id)) {
-        key.classList.remove("active");
-        stopNote(key.id);
-    }
-});
+}
 
 function isPlaying(note) {
     return oscillators[note] !== null;
 }
+
+//Mouse listeners
+document.querySelectorAll("li").forEach(key => key.addEventListener("mousedown", e => onKeyPress(e.target)));
+document.querySelectorAll("li").forEach(key => key.addEventListener("mouseleave", e => onKeyRelease(e.target)));
+document.querySelectorAll("li").forEach(key => key.addEventListener("mouseup", e => onKeyRelease(e.target)));
+
+//Touch listeners
+document.querySelectorAll("li").forEach(key => key.addEventListener("touchstart", e => {
+    e.preventDefault();
+    onKeyPress(e.target)
+}));
+document.querySelectorAll("li").forEach(key => key.addEventListener("touchend", e => e.onKeyRelease(e.target)));
+
+//Keyboard press listeners
+document.addEventListener("keydown", e => {
+    const key = document.querySelector(`li[data-key="${e.key}"]`);
+    if (key !== null) {
+        onKeyPress(key);
+    }
+});
+document.addEventListener("keyup", e => {
+    const key = document.querySelector(`li[data-key="${e.key}"]`);
+    if (key !== null) {
+        onKeyRelease(key)
+    }
+});
