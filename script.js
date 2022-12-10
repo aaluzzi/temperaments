@@ -213,3 +213,24 @@ document.addEventListener("keyup", e => {
         onKeyRelease(key)
     }
 });
+
+//From midi messages
+const NOTE_ON = 0x90;
+const NOTE_OFF = 0x80;
+const C_THREE = 48;
+
+navigator.requestMIDIAccess().then(onMIDISuccess);
+
+function onMIDISuccess(midiAccess) {
+    midiAccess.inputs.forEach(entry => entry.addEventListener("midimessage", onMIDIMessage));
+}
+
+function onMIDIMessage(event) {
+    if (event.data[1] >= C_THREE && event.data[1] < C_THREE + currFreqs.length) {
+        if ((event.data[0] & 0xF0) === NOTE_ON) {
+            onKeyPress(document.getElementById("keyboard").children[event.data[1] - C_THREE]);
+        } else if ((event.data[0] & 0xF0) === NOTE_OFF) {
+            onKeyRelease(document.getElementById("keyboard").children[event.data[1] - C_THREE]);
+        }
+    }
+}
