@@ -99,18 +99,18 @@ document.getElementById("key").addEventListener("change", generateFreqs);
 document.getElementById("checkCents").addEventListener("change", e => e.target.checked ? displayCentDifference() : removeCentDifference());
 
 function displayCentDifference() {
-    const keys = document.getElementById("keyboard").children;
+    const keys = document.querySelectorAll("#keyboard li:not(.hidden)");
     const key = Number(document.getElementById("key").value);
     let centIndex = key == 0 ? 0 : cents.length - key;
     for (i = 0; i < keys.length; i++) {
         keys[i].children[0].textContent = cents[centIndex];
         if (cents[centIndex] > 0) {
-            keys[i].children[0].style.color = "#03bafc";
+            keys[i].children[0].style.color = "#38bdf8";
         } else if (cents[centIndex] < 0) {
-            keys[i].children[0].style.color = "#ff5454";
+            keys[i].children[0].style.color = "#fb7185";
         } else {
             if (keys[i].classList.contains("black")) {
-                keys[i].children[0].style.color = "white";
+                keys[i].children[0].style.color = "#fafafa";
             } else {
                 keys[i].children[0].style.color = "black";
             }
@@ -121,7 +121,7 @@ function displayCentDifference() {
 }
 
 function removeCentDifference() {
-    const keys = document.getElementById("keyboard").children;
+    const keys = document.querySelectorAll("#keyboard li:not(.hidden)");
     for (i = 0; i < keys.length; i++) {
         keys[i].children[0].textContent = "";
     }
@@ -130,14 +130,14 @@ function removeCentDifference() {
 document.getElementById("checkFreqs").addEventListener("change", e => e.target.checked ? displayFreqs() : removeFreqs());
 
 function displayFreqs() {
-    const keys = document.getElementById("keyboard").children;
+    const keys = document.querySelectorAll("#keyboard li:not(.hidden)");
     for (i = 0; i < keys.length; i++) {
         keys[i].children[1].textContent = currFreqs[i].toFixed(1);
     }
 }
 
 function removeFreqs() {
-    const keys = document.getElementById("keyboard").children;
+    const keys = document.querySelectorAll("#keyboard li:not(.hidden)");
     for (i = 0; i < keys.length; i++) {
         keys[i].children[1].textContent = "";
     }
@@ -149,6 +149,7 @@ generateCentDifference();
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
 function playNote(number) {
+    playing[number] = true;
     audioCtx.resume();
 
     const gainNode = audioCtx.createGain();
@@ -164,34 +165,54 @@ function playNote(number) {
 }
 
 function stopNote(number) {
+    playing[number] = false;
     gainNodes[number].gain.setValueAtTime(0.15, audioCtx.currentTime);
     gainNodes[number].gain.exponentialRampToValueAtTime(0.000001, audioCtx.currentTime + 3);
     oscillators[number].stop(audioCtx.currentTime + 3);
     oscillators[number] = null;
 }
 
+let playing = [];
+
 function onKeyPress(key) {
-    if (!isPlaying(key.id)) {
+    if (!playing[key.id]) {
+        playing[key.id] = true
         key.classList.add("active");
         playNote(key.id);
     }
 }
 
 function onKeyRelease(key) {
-    if (isPlaying(key.id)) {
+    if (playing[key.id]) {
+        playing[key.id] = false;
         key.classList.remove("active");
         stopNote(key.id);
     }
 }
 
-function isPlaying(note) {
-    return oscillators[note] !== null;
-}
-
 //Mouse listeners
-document.querySelectorAll("li").forEach(key => key.addEventListener("mousedown", e => onKeyPress(e.target)));
+let held = false;
+document.querySelectorAll("li").forEach(key => key.addEventListener("mousedown", e => {
+    e.preventDefault();
+    e.stopPropagation();
+    held = true;
+    onKeyPress(e.target)
+}));
+document.querySelectorAll("li").forEach(key => key.addEventListener("mousemove", e => {
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    if (held) {
+        onKeyPress(e.target)
+    }
+}));
 document.querySelectorAll("li").forEach(key => key.addEventListener("mouseleave", e => onKeyRelease(e.target)));
-document.querySelectorAll("li").forEach(key => key.addEventListener("mouseup", e => onKeyRelease(e.target)));
+document.querySelectorAll("li").forEach(key => key.addEventListener("mouseup", e => {
+    held = false;
+    onKeyRelease(e.target);
+}));
+document.addEventListener('mouseup', () => {
+    held = false;
+})
 
 //Touch listeners
 document.querySelectorAll("li").forEach(key => key.addEventListener("touchstart", e => {
