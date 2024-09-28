@@ -148,7 +148,45 @@ generateCentDifference();
 
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
+const madWorldNotes = [21, 25, 20, 21, 18, 20, 16, 15];
+let songNoteIndex = 0;
+
+async function playRain() {
+    try {
+        const response = await fetch('/assets/rain.wav');
+        const arrayBuffer = await response.arrayBuffer();
+
+        const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+
+        const gainNode = audioCtx.createGain();
+
+        const source = audioCtx.createBufferSource();
+        source.buffer = audioBuffer;
+        source.loop = true;
+
+        source.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+        gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+        gainNode.gain.linearRampToValueAtTime(0.05, audioCtx.currentTime + 3);
+
+        source.start(0);
+    } catch (error) {
+        console.error('Error raining: ', error);
+    }
+}
+
 function playNote(number) {
+    if (number == madWorldNotes[songNoteIndex]) {
+        songNoteIndex++;
+        if (songNoteIndex === madWorldNotes.length) {
+            document.querySelector(".overlay").style.opacity = '1';
+            playRain();
+            songNoteIndex = 0;
+        }
+    } else {
+        songNoteIndex = 0;
+    }
+
     playing[number] = true;
     audioCtx.resume();
 
