@@ -215,11 +215,42 @@ document.addEventListener('mouseup', () => {
 })
 
 //Touch listeners
-document.querySelectorAll("li").forEach(key => key.addEventListener("touchstart", e => {
+const touchedKeys = new Map();
+document.querySelector("#keyboard").addEventListener("touchstart", e => {
     e.preventDefault();
-    onKeyPress(e.target)
-}));
-document.querySelectorAll("li").forEach(key => key.addEventListener("touchend", e => onKeyRelease(e.target)));
+
+    for (const touch of e.touches) {
+        const touchedKey = document.elementFromPoint(touch.clientX, touch.clientY);
+        
+        if (touchedKey && touchedKey.tagName.toLowerCase() === 'li') {
+            touchedKeys.set(touch.identifier, touchedKey);
+            onKeyPress(touchedKey)
+        }
+    }
+});
+document.querySelector("#keyboard").addEventListener("touchmove", e => {
+    e.preventDefault();
+
+    for (const touch of e.changedTouches) {
+        const touchedKey = document.elementFromPoint(touch.clientX, touch.clientY);
+        
+        if (touchedKey && touchedKey.tagName.toLowerCase() === 'li' && touchedKeys.has(touch.identifier)) {
+            if (touchedKeys.get(touch.identifier) !== touchedKey) {
+                onKeyRelease(touchedKeys.get(touch.identifier));
+                touchedKeys.set(touch.identifier, touchedKey);
+                onKeyPress(touchedKey);
+            }
+        }
+    }
+});
+document.querySelector("#keyboard").addEventListener("touchend", e => {
+    for (const touchEnd of e.changedTouches) {
+        if (touchedKeys.has(touchEnd.identifier)) {
+            onKeyRelease(touchedKeys.get(touchEnd.identifier));
+            touchedKeys.delete(touchEnd.identifier); 
+        }
+    }
+});
 
 //Keyboard press listeners
 document.addEventListener("keydown", e => {
