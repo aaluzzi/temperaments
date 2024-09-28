@@ -149,7 +149,10 @@ generateCentDifference();
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
 const madWorldNotes = [21, 25, 20, 21, 18, 20, 16, 15];
-let songNoteIndex = 0;
+const songOfStormsNotes = [15, 18, 27, 15, 18, 27];
+let madWorldIndex = 0;
+let songOfStormsIndex = 0;
+let raining = false;
 
 async function playRain() {
     try {
@@ -175,18 +178,32 @@ async function playRain() {
     }
 }
 
-function playNote(number) {
-    if (number == madWorldNotes[songNoteIndex]) {
-        songNoteIndex++;
-        if (songNoteIndex === madWorldNotes.length) {
+function checkSecretMelodies(note) {
+    if (note == madWorldNotes[madWorldIndex]) {
+        madWorldIndex++;
+        if (madWorldIndex === madWorldNotes.length) {
             document.querySelector(".overlay").style.opacity = '1';
             playRain();
-            songNoteIndex = 0;
+            raining = true;
+        }
+    } else if (note == songOfStormsNotes[songOfStormsIndex]) {
+        songOfStormsIndex++;
+        if (songOfStormsIndex === songOfStormsNotes.length) {
+            document.querySelector(".overlay").style.opacity = '1';
+            playRain();
+            raining = true;
         }
     } else {
-        songNoteIndex = 0;
+        madWorldIndex = 0;
+        songOfStormsIndex = 0;
     }
+}
 
+function playNote(number) {
+    if (!raining) {
+        checkSecretMelodies(number);
+    }
+    
     playing[number] = true;
     audioCtx.resume();
 
